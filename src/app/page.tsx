@@ -1,5 +1,5 @@
 import { Checker } from "@/components/checker";
-import { Eyebrow, ShieldIcon } from "@/components/ui";
+import { ArrowIcon, CheckIcon, Eyebrow, ShieldIcon } from "@/components/ui";
 import { organization } from "@/config/organization";
 import { aiEnabled } from "@/lib/ai/review";
 import { CHECK_GROUPS, TOTAL_CHECKS } from "@/lib/analyzer/checks";
@@ -24,7 +24,7 @@ const PRIVACY = [
 export default function Home() {
   return (
     <>
-      <header className="sticky top-0 z-20 border-b border-line bg-bg/90 backdrop-blur-md">
+      <header className="site-header sticky top-0 z-20 border-b border-line bg-bg/90 backdrop-blur-md">
         <div className="mx-auto flex h-[68px] max-w-[1200px] items-center justify-between px-5 sm:px-8">
           <a href="#" className="-my-4 flex items-center gap-2.5 py-4" aria-label={`${organization.name} Message Check`}>
             <ShieldIcon className="size-[18px] text-accent" />
@@ -50,26 +50,45 @@ export default function Home() {
       </header>
 
       <main id="main">
-        {/* Hero: text only, weighted left. The tool below is the real asset. */}
-        <section className="mx-auto max-w-[1200px] px-5 pt-16 pb-12 sm:px-8 sm:pt-24 sm:pb-16">
-          <Eyebrow>Message Check</Eyebrow>
-          <h1 className="font-display-lg mt-6 max-w-[15ch] text-[44px] text-ink sm:text-[68px]">
-            Not sure it’s <span className="text-ink-3">really</span> us?
-          </h1>
-          <p className="mt-6 max-w-[52ch] text-[16.5px] leading-[1.65] text-ink-2 sm:text-[18px]">
-            Paste the message or drop in a screenshot. We will show you the warning signs and how to check safely.
-          </p>
+        <section className="hero-shell relative overflow-hidden">
+          <div className="hero-grid" aria-hidden="true" />
+          <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-14 pb-16 sm:px-8 sm:pt-20 sm:pb-20 lg:grid-cols-[1.2fr_1fr]">
+            <div className="hero-copy">
+              <Eyebrow>A little pause. A lot of protection.</Eyebrow>
+              <h1 className="font-display-lg mt-7 max-w-[13ch] text-[48px] text-ink sm:text-[72px]">
+                Before you trust it.<br /><span className="hero-accent">Check it.</span>
+              </h1>
+              <p className="mt-6 max-w-[43ch] text-[16px] leading-[1.75] text-ink-2 sm:text-[18px]">
+                Not sure it&apos;s really us? Turn a suspicious message into clear answers, so you can make your next move with confidence.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-5">
+                <a href="#checker" className="primary-link inline-flex h-12 items-center gap-3 rounded-full bg-ink px-6 text-[14px] font-medium text-white">Check a message <ArrowIcon /></a>
+                <span className="flex items-center gap-2 text-[12px] text-ink-2"><ShieldIcon /> Private by design. No account needed.</span>
+              </div>
+            </div>
+            <div className="hero-visual" aria-hidden="true">
+              <div className="visual-orbit orbit-one" /><div className="visual-orbit orbit-two" />
+              <div className="visual-label"><span className="status-dot" /> Clarity before you click</div>
+              <div className="preview-message">
+                <div className="flex items-center gap-3"><span className="preview-avatar"><ShieldIcon /></span><div><p className="text-[13px] font-semibold">An unexpected message</p><p className="mt-0.5 text-[11px] text-ink-3">Someone claiming to be your bank</p></div><span className="ml-auto text-[10px] text-ink-3">Now</span></div>
+                <p className="mt-5 text-[14px] leading-[1.85] text-ink-2">Your account needs attention. <span className="preview-highlight">Share your one-time code</span> to confirm your identity.</p>
+                <div className="preview-warning"><span className="warning-symbol">!</span><div><p className="text-[12px] font-semibold">A warning sign worth catching</p><p className="mt-1 text-[11px] leading-relaxed">We&apos;ll never ask you to share a one-time code.</p></div></div>
+              </div>
+              <div className="preview-check"><span className="preview-check-icon"><CheckIcon /></span><div><p className="text-[12px] font-semibold">Understand the signs.</p><p className="mt-1 text-[11px] text-ink-3">Know what to do next.</p></div><ArrowIcon /></div>
+              <span className="visual-caption">ILLUSTRATIVE EXAMPLE / NOT A LIVE RESULT</span>
+            </div>
+          </div>
         </section>
 
-        {/* The tool, presented as one panel on a tinted band. */}
-        <section className="border-y border-line bg-surface py-10 sm:py-14">
+        <section id="checker" className="checker-band scroll-mt-[88px] border-y border-line py-10 sm:py-14">
           <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-3"><div><p className="section-kicker">YOUR NEXT STEP, MADE CLEAR</p><h2 className="mt-2 font-display text-[28px] sm:text-[34px]">Let&apos;s take a closer look.</h2></div><p className="flex items-center gap-2 text-[12px] text-ink-3"><ShieldIcon /> No sign-up. No message history.</p></div>
             <Checker aiEnabled={aiEnabled()} />
           </div>
         </section>
 
         {/* Capability strip: one horizontal row of what the engine covers. */}
-        <section id="how" className="scroll-mt-[68px] border-b border-line">
+        <section id="how" className="coverage-section scroll-mt-[68px] border-b border-line">
           <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
             <div className="grid gap-x-10 gap-y-8 py-14 lg:grid-cols-12 sm:py-20">
               <div className="lg:col-span-4">
@@ -111,7 +130,7 @@ export default function Home() {
         </section>
 
         {/* Promise: sticky heading, divided rows. */}
-        <section id="never" className="scroll-mt-[68px] border-b border-line bg-surface">
+        <section id="never" className="promise-section scroll-mt-[68px] border-b border-line bg-surface">
           <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
             <div className="grid gap-x-10 gap-y-8 py-14 lg:grid-cols-12 sm:py-20">
               <div className="lg:col-span-4">
@@ -148,7 +167,7 @@ export default function Home() {
           </h2>
           <dl className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-3">
             {PRIVACY.map((item) => (
-              <div key={item.title} className="border-t border-ink pt-4">
+              <div key={item.title} className="privacy-card rounded-2xl border border-line bg-bg p-6">
                 <dt className="text-[15px] font-medium text-ink">{item.title}</dt>
                 <dd className="mt-2 text-[14px] leading-relaxed text-ink-2">{item.body}</dd>
               </div>
@@ -157,7 +176,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-line bg-surface">
+      <footer className="site-footer border-t border-line bg-surface">
         <div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-5 py-8 text-[12.5px] text-ink-3 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p>
             © {new Date().getFullYear()} {organization.name}. Message Check offers guidance, not a guarantee.

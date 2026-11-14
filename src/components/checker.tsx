@@ -48,7 +48,7 @@ export function Checker({ aiEnabled }: { aiEnabled: boolean }) {
           role="tablist"
           aria-label="What do you want to check?"
           onKeyDown={onKeyDown}
-          className="inline-flex self-start rounded-full border border-line bg-surface-2 p-1"
+          className="checker-tabs inline-flex max-w-full self-start rounded-full border border-line bg-surface-2 p-1"
         >
           {TABS.map((tab) => (
             <button
@@ -76,7 +76,7 @@ export function Checker({ aiEnabled }: { aiEnabled: boolean }) {
         <p className="mt-2.5 pl-1 text-[12.5px] text-ink-3">{active.hint}</p>
       </div>
 
-      <div role="tabpanel" id={`panel-${mode}`} aria-labelledby={`tab-${mode}`}>
+      <div className="checker-panel" role="tabpanel" id={`panel-${mode}`} aria-labelledby={`tab-${mode}`}>
         {mode === "message" ? (
           <MessageChecker aiEnabled={aiEnabled} message={message} setMessage={setMessage} />
         ) : (
