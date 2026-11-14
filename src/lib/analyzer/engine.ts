@@ -149,13 +149,13 @@ function copyFor(risk: RiskLevel, count: number, coverage: Coverage): { headline
 
   if (risk === "high")
     return {
-      headline: "High risk — this looks like a scam",
+      headline: "High risk: this looks like a scam",
       summary: `We found ${count} warning sign${plural} that match known scam tactics. Don’t act on this message. Follow the steps below to check safely.`,
     };
 
   if (risk === "medium")
     return {
-      headline: "Suspicious — verify before you act",
+      headline: "Suspicious: verify before you act",
       summary: `We found ${count} warning sign${plural}. The message may be genuine, but don’t use any links or numbers in it until you’ve checked independently.`,
     };
 
@@ -171,7 +171,7 @@ function copyFor(risk: RiskLevel, count: number, coverage: Coverage): { headline
     summary:
       count === 0
         ? "That doesn’t prove it’s genuine. Scams can be well written. If it asks you to do anything, verify it through a channel you trust."
-        : "We spotted only minor signs. That doesn’t prove it’s genuine — if it asks you to do anything, verify it through a channel you trust.",
+        : "We spotted only minor signs. That doesn’t prove it’s genuine. If it asks you to do anything, verify it through a channel you trust.",
   };
 }
 

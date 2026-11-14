@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { tidyOcrText } from "@/lib/ocr-text";
+import { ImageIcon } from "./ui";
 
 /**
  * Reads the text out of a screenshot in the browser.
  *
- * Nobody retypes a scam text message — they screenshot it. Asking people to
+ * Nobody retypes a scam text message. They screenshot it. Asking people to
  * transcribe the thing that frightened them is the fastest way to lose them.
  *
  * The recognition runs entirely on the device: the image is never uploaded, to
@@ -125,7 +126,7 @@ export function ScreenshotInput({
       } catch {
         setState({
           status: "error",
-          message: "The screenshot reader couldn’t load. Paste the message as text instead — the checks are exactly the same.",
+          message: "The screenshot reader couldn’t load. Paste the message as text instead. The checks are exactly the same.",
         });
       }
     },
@@ -149,11 +150,11 @@ export function ScreenshotInput({
       <div className="rounded-xl border border-line bg-surface px-4 py-3.5" role="status" aria-live="polite">
         <div className="flex items-center justify-between gap-4">
           <p className="text-[13px] font-medium text-ink">{state.label}…</p>
-          <span className="font-mono text-[11.5px] text-ink-3">{state.percent}%</span>
+          <span className="tnum font-mono text-[11.5px] text-ink-3">{state.percent}%</span>
         </div>
         <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-line">
           <div
-            className="h-full rounded-full bg-ink transition-[width] duration-300"
+            className="h-full rounded-full bg-accent transition-[width] duration-300"
             style={{ width: `${Math.max(4, state.percent)}%` }}
           />
         </div>
@@ -176,7 +177,12 @@ export function ScreenshotInput({
           if (file) void read(file);
         }}
       />
-      <div
+      {/* The whole zone is the control, so the tap target is the full area. */}
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label="Choose a screenshot to read"
+        onClick={() => fileRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
           setDragging(true);
@@ -188,21 +194,26 @@ export function ScreenshotInput({
           const file = e.dataTransfer.files?.[0];
           if (file) void read(file);
         }}
-        className={`rounded-xl border border-dashed px-4 py-3.5 transition-colors ${
-          dragging ? "border-ink bg-surface" : "border-line-strong"
+        className={`w-full rounded-xl border border-dashed px-4 py-3.5 text-left transition-colors ${
+          dragging ? "border-accent bg-accent-wash" : "border-line-strong bg-surface/50 hover:border-accent/50"
         }`}
       >
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <p className="text-[13px] text-ink-2">
-            Got a screenshot?{" "}
-            <label htmlFor={inputId} className="cursor-pointer font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink">
-              Choose an image
-            </label>
-            <span className="hidden sm:inline">, drop it here, or paste it into the box above.</span>
-          </p>
+        <span className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <span className="flex items-center gap-2.5 text-[13px] text-ink-2">
+            <span className="text-accent">
+              <ImageIcon />
+            </span>
+            <span>
+              Got a screenshot?{" "}
+              <span className="font-medium text-accent-strong underline decoration-accent/40 underline-offset-4">
+                Choose an image
+              </span>
+              <span className="hidden sm:inline">, drop it here, or paste it anywhere on this page.</span>
+            </span>
+          </span>
           <span className="text-[11.5px] text-ink-3">Read on your device, never uploaded</span>
-        </div>
-      </div>
+        </span>
+      </button>
       {state.status === "error" && (
         <p role="alert" className="mt-2 text-[12.5px] leading-relaxed text-high">
           {state.message}

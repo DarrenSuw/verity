@@ -23,7 +23,7 @@ const PLAYBOOKS: PlaybookRule[] = [
       "Someone claiming to be your bank, the police or a fraud team says your money is at risk and must be moved to a “safe” or “holding” account. The account belongs to them.",
     nextMoves: [
       "They will stay on the line while you make the transfer, so you never get a chance to check with anyone.",
-      "They may coach you on what to tell your bank if it asks — that the payment is for furniture, a car or family.",
+      "They may coach you on what to tell your bank if it asks, saying the payment is for furniture, a car or family.",
       "Once the first transfer clears they come back for the rest, often the same day.",
     ],
     requires: ["safe-account"],
@@ -38,7 +38,7 @@ const PLAYBOOKS: PlaybookRule[] = [
     nextMoves: [
       "Once connected they can blank your screen so you can't see what they're doing.",
       "They may show you a fake refund that looks too large, then ask you to send back the difference.",
-      "They will ask you to read out a code — that code approves their payment, not a refund.",
+      "They will ask you to read out a code. That code approves their payment, not a refund.",
     ],
     requires: ["category:remote-access"],
     anyOf: ["impersonation", "account-alert", "threat", "credential-request"],
@@ -51,7 +51,7 @@ const PLAYBOOKS: PlaybookRule[] = [
     description:
       "The sender already has enough of your details to start a payment or a login. The only thing missing is the code your bank sends you.",
     nextMoves: [
-      "The code you receive will be for their payment or their new device — not for “confirming your identity”.",
+      "The code you receive will be for their payment or their new device, not for “confirming your identity”.",
       "They will say the code cancels a transaction. Reading it out approves it.",
       "If one code fails they will ask for another, and keep asking.",
     ],
@@ -63,7 +63,7 @@ const PLAYBOOKS: PlaybookRule[] = [
     name: "The QR code redirect",
     alsoKnownAs: "Quishing",
     description:
-      "A QR code hides its destination completely — you can't read it before you scan it. Codes are printed over real ones on parking meters and posted in letters and emails.",
+      "A QR code hides its destination completely. You can't read it before you scan it. Codes are printed over real ones on parking meters and posted in letters and emails.",
     nextMoves: [
       "Scanning opens a convincing copy of a real payment or login page.",
       "Because you scanned it on your phone, the address bar is short and the fake domain is easy to miss.",
@@ -79,7 +79,7 @@ const PLAYBOOKS: PlaybookRule[] = [
     description:
       "A message from a number you don't recognise claims to be a family member or friend who has lost their phone, then asks for money or help.",
     nextMoves: [
-      "They will avoid a voice call — the new phone is broken, they're in a meeting, the signal is bad.",
+      "They will avoid a voice call. The new phone is broken, they're in a meeting, the signal is bad.",
       "The first request is urgent and small, and grows once you've paid.",
       "Call the person back on the number you already have, even if the message tells you not to.",
     ],
@@ -108,7 +108,7 @@ const PLAYBOOKS: PlaybookRule[] = [
     description:
       "A fake delivery notice asks for a small fee to release a parcel. The payment page exists to capture your card details, not to take the fee.",
     nextMoves: [
-      "The amount is deliberately tiny — small enough that you don't stop to think.",
+      "The amount is deliberately tiny, small enough that you don't stop to think.",
       "Days later someone calls about “suspicious activity” on the card you just used.",
       "That second call is the real attack, and it already knows your card details.",
     ],
@@ -121,7 +121,7 @@ const PLAYBOOKS: PlaybookRule[] = [
     name: "The fee before the payout",
     alsoKnownAs: "Advance-fee fraud, prize scam",
     description:
-      "Money is waiting for you — a refund, a prize, compensation — but a fee, tax or verification payment is needed first. The payout never arrives.",
+      "Money is waiting for you: a refund, a prize, compensation. But a fee, tax or verification payment is needed first. The payout never arrives.",
     nextMoves: [
       "Each payment unlocks a new and larger fee.",
       "They may send official-looking paperwork or a screenshot of a pending transfer.",
@@ -151,7 +151,7 @@ const PLAYBOOKS: PlaybookRule[] = [
     name: "The account scare",
     alsoKnownAs: "Suspension phishing",
     description:
-      "An alarming notice about your account — suspended, locked, unusual activity — pushes you to act before you check. The alarm is the whole point.",
+      "An alarming notice about your account (suspended, locked, unusual activity) pushes you to act before you check. The alarm is the whole point.",
     nextMoves: [
       "Whatever you do next, it will ask you to confirm details you should never send.",
       "The deadline will keep moving if you hesitate, which a real deadline wouldn't.",

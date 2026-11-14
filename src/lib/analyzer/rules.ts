@@ -93,7 +93,7 @@ export const patternRules: PatternRule[] = [
     severity: "medium",
     title: "Asks you to download something",
     explanation:
-      "Only install apps from your phone’s official app store, and only ones you went looking for yourself — never from a link in a message.",
+      "Only install apps from your phone’s official app store, and only ones you went looking for yourself, never from a link in a message.",
     patterns: [/\b(?:install|download)\b[^.!?\n]{0,25}\b(?:app|apk|application|software|tool|file|attachment)\b/gi],
     exclude: /\b(?:app store|play store|google play)\b/i,
   },
@@ -103,7 +103,7 @@ export const patternRules: PatternRule[] = [
     severity: "high",
     title: "Asks you to scan a QR code",
     explanation:
-      "A QR code hides its destination completely — you cannot read where it goes before you scan it. Never scan a code sent to you to log in or pay.",
+      "A QR code hides its destination completely. You cannot read where it goes before you scan it. Never scan a code sent to you to log in or pay.",
     patterns: [
       /\b(?:scan (?:the |this |below |attached |following )?(?:qr|bar) ?code|qr ?code (?:below|attached|above)|scan (?:the )?code (?:below|to (?:pay|verify|log ?in|confirm|continue)))\b/gi,
     ],

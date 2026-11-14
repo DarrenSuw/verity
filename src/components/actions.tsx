@@ -93,8 +93,10 @@ function Action({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-[13px] transition-colors ${
-        active ? "border-ink bg-ink text-white" : "border-line text-ink-2 hover:border-line-strong hover:text-ink"
+      className={`inline-flex h-11 items-center gap-2 rounded-full border px-4 text-[13px] transition-colors active:scale-[0.98] sm:h-9 sm:px-3.5 ${
+        active
+          ? "border-accent bg-accent text-white"
+          : "border-line bg-bg text-ink-2 hover:border-line-strong hover:text-ink"
       }`}
     >
       {children}

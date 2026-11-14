@@ -1,8 +1,8 @@
 /**
  * Per-instance sliding-window limiter for the public endpoints.
  *
- * The analyzer is unauthenticated by design — a worried customer should not
- * have to log in first — so it needs a ceiling. State lives in memory, which
+ * The analyzer is unauthenticated by design, because a worried customer should
+ * not have to log in first, so it needs a ceiling. State lives in memory, which
  * means each serverless instance enforces its own window; that is enough to
  * stop casual abuse of a free endpoint. A shared store would be the next step
  * if this ran behind a single origin.

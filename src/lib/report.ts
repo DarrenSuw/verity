@@ -12,9 +12,9 @@ const RISK_WORD = { high: "HIGH RISK", medium: "SUSPICIOUS", low: "NO COMMON WAR
  */
 export function buildReportText(result: AnalysisResult, message: string): string {
   const lines: string[] = [];
-  const rule = "—".repeat(56);
+  const rule = "-".repeat(56);
 
-  lines.push(`${organization.name} Message Check — report`);
+  lines.push(`${organization.name} Message Check report`);
   lines.push(new Date(result.meta.analyzedAt).toLocaleString());
   lines.push(rule, "");
   lines.push(`VERDICT: ${RISK_WORD[result.risk]}`);

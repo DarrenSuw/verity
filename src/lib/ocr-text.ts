@@ -20,7 +20,7 @@ export function repairWrappedText(raw: string): string {
     const previous = out[out.length - 1];
     const joinable = previous !== undefined && URL_CONTINUATION.test(line);
 
-    // A hyphen at a line end is a wrap, not punctuation — an em dash would be.
+    // A hyphen at a line end is a wrap, not punctuation. An em dash would be.
     if (joinable && (/-$/.test(previous) || UNFINISHED_URL.test(previous))) {
       out[out.length - 1] = previous + line.trimStart();
       continue;

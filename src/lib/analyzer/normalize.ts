@@ -80,7 +80,7 @@ function foldCharacters(input: string): { chars: string[]; map: number[]; change
 
 /**
  * Replaces digits and symbols that stand in for letters, but only inside words
- * that are mostly letters — so "within 24 hours" and "code 482913" are untouched.
+ * that are mostly letters, so "within 24 hours" and "code 482913" are untouched.
  */
 function foldLeet(chars: string[]): { chars: string[]; changed: boolean } {
   const out = [...chars];

@@ -36,12 +36,12 @@ export const samples: SampleMessage[] = [
     id: "new-number",
     label: "“New number” message",
     channel: "chat",
-    text: "Hi Mum, I dropped my phone and it's completely dead, so this is my new number — save it. I'm locked out of my banking on this phone and a payment is due. Could you send it for me and I'll transfer you back tomorrow? Please don't tell dad, he'll only worry.",
+    text: "Hi Mum, I dropped my phone and it's completely dead, so this is my new number, save it. I'm locked out of my banking on this phone and a payment is due. Could you send it for me and I'll transfer you back tomorrow? Please don't tell dad, he'll only worry.",
   },
   {
     id: "genuine-otp",
     label: "Genuine code",
     channel: "sms",
-    text: "Your Verity verification code is 482913. It expires in 10 minutes. Never share this code with anyone — Verity staff will never ask for it.",
+    text: "Your Verity verification code is 482913. It expires in 10 minutes. Never share this code with anyone. Verity staff will never ask for it.",
   },
 ];

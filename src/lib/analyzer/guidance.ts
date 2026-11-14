@@ -141,7 +141,7 @@ export function buildRecoverySteps(): GuidanceStep[] {
     {
       id: "sent-money",
       title: "If you sent money",
-      detail: "Contact us immediately — the sooner we know, the better the chance of stopping the payment. Also report it to the police.",
+      detail: "Contact us immediately. The sooner we know, the better the chance of stopping the payment. Also report it to the police.",
     },
     {
       id: "installed-app",

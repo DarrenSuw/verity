@@ -52,7 +52,7 @@ export function assessCoverage(text: string): Coverage {
       return {
         supported: false,
         script: top.label,
-        note: `This message is mostly written in ${top.label} script. Our written checks only cover English, so treat the result below as incomplete — no warning signs here does not mean the message is safe.`,
+        note: `This message is mostly written in ${top.label} script. Our written checks only cover English, so treat the result below as incomplete. No warning signs here does not mean the message is safe.`,
       };
     }
   }
@@ -64,7 +64,7 @@ export function assessCoverage(text: string): Coverage {
       return {
         supported: false,
         script: null,
-        note: "This message doesn’t look like English, and our written checks only cover English. Treat the result below as incomplete — no warning signs here does not mean the message is safe.",
+        note: "This message doesn’t look like English, and our written checks only cover English. Treat the result below as incomplete. No warning signs here does not mean the message is safe.",
       };
     }
   }

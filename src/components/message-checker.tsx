@@ -12,7 +12,7 @@ import { ArrowIcon } from "./ui";
 const MAX = 6000;
 
 const CHANNELS: { id: Channel; label: string; placeholder: string }[] = [
-  { id: "sms", label: "Text message", placeholder: "Paste the text message exactly as you received it, or paste a screenshot…" },
+  { id: "sms", label: "Text message", placeholder: "Paste the text message exactly as you received it, or drop in a screenshot…" },
   { id: "email", label: "Email", placeholder: "Paste the email, including the sender address and subject if you can…" },
   { id: "chat", label: "Chat app", placeholder: "Paste the WhatsApp, Telegram or social media message…" },
   { id: "call", label: "Phone call", placeholder: "Write down what the caller said and asked you to do…" },
@@ -99,17 +99,20 @@ export function MessageChecker({
     }
   }, [aiEnabled, canSubmit, channel, runReview, trimmed]);
 
-  const reset = useCallback((keepText: boolean) => {
-    requestId.current++;
-    setResult(null);
-    setAi({ status: "off" });
-    setRedacted(0);
-    if (!keepText) setMessage("");
-    requestAnimationFrame(() => {
-      topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      inputRef.current?.focus();
-    });
-  }, [setMessage]);
+  const reset = useCallback(
+    (keepText: boolean) => {
+      requestId.current++;
+      setResult(null);
+      setAi({ status: "off" });
+      setRedacted(0);
+      if (!keepText) setMessage("");
+      requestAnimationFrame(() => {
+        topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        inputRef.current?.focus();
+      });
+    },
+    [setMessage],
+  );
 
   const addScreenshotText = useCallback(
     (text: string) => {
@@ -131,9 +134,9 @@ export function MessageChecker({
     return () => window.removeEventListener("keydown", onKey);
   }, [submit]);
 
-  return (
-    <div ref={topRef} className="scroll-mt-24">
-      {result ? (
+  if (result)
+    return (
+      <div ref={topRef} className="scroll-mt-[88px]">
         <Results
           result={result}
           text={analyzedText}
@@ -143,62 +146,69 @@ export function MessageChecker({
           onReset={() => reset(false)}
           onEdit={() => reset(true)}
         />
-      ) : (
-        <section
-          aria-label="Check a message"
-          className="rounded-2xl border border-line bg-bg shadow-[0_1px_0_rgba(14,14,16,0.03),0_12px_40px_-20px_rgba(14,14,16,0.12)]"
-        >
-          <div className="flex flex-col gap-4 border-b border-line px-5 pt-5 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-            <label htmlFor="message" className="text-[13px] font-medium text-ink">
-              Where did you receive it?
-            </label>
-            <div role="radiogroup" aria-label="Channel" className="grid grid-cols-2 gap-1 sm:flex">
-              {CHANNELS.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={channel === c.id}
-                  onClick={() => setChannel(c.id)}
-                  className={`h-8 shrink-0 rounded-full px-3.5 text-[13px] transition-colors ${
-                    channel === c.id ? "bg-ink text-white" : "text-ink-2 hover:bg-surface-2 hover:text-ink"
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
+      </div>
+    );
+
+  return (
+    <div ref={topRef} className="scroll-mt-[88px]">
+      <section
+        aria-label="Check a message"
+        className="overflow-hidden rounded-2xl border border-line bg-bg shadow-[0_1px_2px_rgba(24,35,28,0.04),0_16px_48px_-28px_rgba(24,35,28,0.18)]"
+      >
+        <div className="flex flex-col gap-3.5 border-b border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <label htmlFor="message" className="text-[13.5px] font-medium text-ink">
+            Where did you receive it?
+          </label>
+          <div role="radiogroup" aria-label="Channel" className="grid grid-cols-2 gap-2 sm:flex sm:gap-1.5">
+            {CHANNELS.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                role="radio"
+                aria-checked={channel === c.id}
+                onClick={() => setChannel(c.id)}
+                className={`h-11 shrink-0 rounded-full px-3.5 text-[13px] transition-colors sm:h-8 ${
+                  channel === c.id ? "bg-ink font-medium text-white" : "text-ink-2 hover:bg-surface hover:text-ink"
+                }`}
+              >
+                {c.label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          <div className="px-5 sm:px-7">
-            <textarea
-              id="message"
-              ref={inputRef}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder={active.placeholder}
-              spellCheck={false}
-              rows={8}
-              className="block min-h-[200px] w-full resize-y bg-transparent py-5 text-[15px] leading-[1.7] text-ink placeholder:text-ink-3/70 focus:outline-none"
-              aria-describedby="message-help"
-            />
-            <div className="pb-4">
-              <ScreenshotInput onText={addScreenshotText} disabled={pending} />
-            </div>
+        <div className="px-5 sm:px-7">
+          <textarea
+            id="message"
+            ref={inputRef}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder={active.placeholder}
+            spellCheck={false}
+            rows={8}
+            className="block min-h-[190px] w-full resize-y bg-transparent py-5 text-[15.5px] leading-[1.7] text-ink placeholder:text-ink-3 focus:outline-none"
+            aria-describedby="message-help"
+          />
+          <div className="pb-5">
+            <ScreenshotInput onText={addScreenshotText} disabled={pending} />
           </div>
+        </div>
 
-          {error && (
-            <p
-              role="alert"
-              className="mx-5 mb-4 rounded-lg border border-high-line bg-high-bg px-3.5 py-2.5 text-[13px] text-high sm:mx-7"
-            >
-              {error}
-            </p>
-          )}
+        {error && (
+          <p
+            role="alert"
+            className="mx-5 mb-4 rounded-xl border border-high-line bg-high-bg px-4 py-3 text-[13.5px] text-high sm:mx-7"
+          >
+            {error}
+          </p>
+        )}
 
-          <div className="flex flex-col gap-4 border-t border-line bg-surface/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-2">
-              <span className="text-[12px] text-ink-3">Try an example</span>
+        <div className="flex flex-col gap-4 border-t border-line bg-surface px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <div className="min-w-0">
+            <span className="block text-[12px] text-ink-3 sm:hidden">Try an example</span>
+            {/* One swipeable row on a phone, wrapped chips on a wider screen. */}
+            <div className="-mx-5 mt-2 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:mt-0 sm:flex-wrap sm:items-center sm:px-0 sm:pb-0">
+              <span className="hidden shrink-0 text-[12px] text-ink-3 sm:inline">Try an example</span>
               {samples.map((s) => (
                 <button
                   key={s.id}
@@ -209,36 +219,36 @@ export function MessageChecker({
                     setError(null);
                     inputRef.current?.focus();
                   }}
-                  className="h-7 rounded-full border border-line bg-bg px-3 text-[12px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
+                  className="h-11 shrink-0 rounded-full border border-line bg-bg px-4 text-[12.5px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink sm:h-7 sm:px-3 sm:text-[12px]"
                 >
                   {s.label}
                 </button>
               ))}
             </div>
-            <div className="flex items-center justify-between gap-4 sm:justify-end">
-              <span className={`font-mono text-[11px] ${message.length > MAX ? "text-high" : "text-ink-3"}`}>
-                {message.length.toLocaleString("en-US")} / {MAX.toLocaleString("en-US")}
-              </span>
-              <button
-                type="button"
-                onClick={() => void submit()}
-                disabled={!canSubmit}
-                className="group inline-flex h-11 shrink-0 items-center gap-2.5 rounded-full bg-ink pr-4 pl-5 text-[14px] font-medium text-white transition-all hover:bg-black disabled:cursor-not-allowed disabled:bg-ink/25"
-              >
-                {pending ? "Checking…" : "Check message"}
-                <ArrowIcon className="transition-transform group-hover:translate-x-0.5" />
-              </button>
-            </div>
           </div>
-        </section>
-      )}
+          <div className="flex items-center justify-between gap-4 sm:justify-end">
+            <span className={`tnum font-mono text-[11px] ${message.length > MAX ? "text-high" : "text-ink-3"}`}>
+              {message.length.toLocaleString("en-US")} / {MAX.toLocaleString("en-US")}
+            </span>
+            <button
+              type="button"
+              onClick={() => void submit()}
+              disabled={!canSubmit}
+              className="group inline-flex h-11 shrink-0 items-center gap-2.5 rounded-full bg-accent pr-4 pl-5 text-[14.5px] font-medium text-white transition-colors hover:bg-accent-strong active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink-3"
+            >
+              {pending ? "Checking…" : "Check message"}
+              <ArrowIcon className="transition-transform group-hover:translate-x-0.5" />
+            </button>
+          </div>
+        </div>
 
-      {!result && (
-        <p id="message-help" className="mt-4 px-1 text-[12.5px] leading-relaxed text-ink-3">
-          Card numbers are removed in your browser before anything is sent. We don’t store your message.
-          <span className="hidden sm:inline"> Press Ctrl + Enter to check.</span>
+        <p id="message-help" className="border-t border-line bg-surface px-5 pb-4 text-[12px] leading-relaxed text-ink-3 sm:px-7">
+          <span className="block pt-3">
+            Card numbers are removed in your browser before anything is sent, and we don’t store your message.
+            <span className="hidden sm:inline"> Press Ctrl and Enter to check.</span>
+          </span>
         </p>
-      )}
+      </section>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 /**
  * Checks one link, phone number or email address on its own.
  *
- * This is the question customers actually ask — "is this really you?" — and it
+ * This is the question customers actually ask, "is this really you?", and it
  * needs answering without pasting a whole message. The answer is deliberately
  * careful: we can prove something *is* ours, but never that an unknown number
  * is safe, so an unrecognised value is reported as unrecognised, not as clean.
@@ -84,7 +84,7 @@ function checkUrl(value: string): IdentifierResult {
       : `This is not a ${organization.name} address`,
     detail: suspicious
       ? `Whatever the link says, it opens a site owned by ${domain}. That is not us.`
-      : `${domain} is not a domain we own, so this link is not from us. It may still belong to another legitimate company — but nothing from ${organization.name} will ever ask you to sign in there.`,
+      : `${domain} is not a domain we own, so this link is not from us. It may still belong to another legitimate company, but nothing from ${organization.name} will ever ask you to sign in there.`,
     notes,
     advice: [
       "Don’t open it to check. A page can look identical to the real one.",
@@ -117,7 +117,7 @@ function checkEmail(value: string, host: string): IdentifierResult {
     verdict: brand ? "suspicious" : "unrecognised",
     headline: brand ? "This address imitates a known name" : `This is not a ${organization.name} address`,
     detail: brand
-      ? `The name in front is familiar, but the domain behind it — ${domain} — belongs to someone else.`
+      ? `The name in front is familiar, but the domain behind it, ${domain}, belongs to someone else.`
       : `We send email from ${organization.website} only. ${domain} is not ours.`,
     notes: [],
     advice: [
@@ -139,7 +139,7 @@ function checkPhone(value: string): IdentifierResult {
       domain: null,
       verdict: "official",
       headline: "This is our published number",
-      detail: `${organization.supportPhone} is the number printed on your card and statements. Note that a caller ID showing this number proves nothing — displayed numbers can be forged, so hang up and dial it yourself.`,
+      detail: `${organization.supportPhone} is the number printed on your card and statements. Note that a caller ID showing this number proves nothing. Displayed numbers can be forged, so hang up and dial it yourself.`,
       notes: [],
       advice: ["If someone called you from this number, call it back yourself rather than trusting the display."],
     };
@@ -154,7 +154,7 @@ function checkPhone(value: string): IdentifierResult {
     notes: [],
     advice: [
       `Call ${organization.supportPhone} instead, or the number on the back of your card.`,
-      "Wait a minute before calling back, or use another phone — a scammer can stay on a line you think you hung up.",
+      "Wait a minute before calling back, or use another phone. A scammer can stay on a line you think you hung up.",
     ],
   };
 }
