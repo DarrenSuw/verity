@@ -18,7 +18,8 @@ export type SignalCategory =
   | "prize"
   | "delivery"
   | "greeting"
-  | "formatting";
+  | "formatting"
+  | "evasion";
 
 export interface Span {
   start: number;
@@ -50,10 +51,44 @@ export interface LinkInsight {
   span: Span;
 }
 
+export interface EmailInsight {
+  address: string;
+  domain: string;
+  official: boolean;
+  span: Span;
+}
+
 export interface GuidanceStep {
   id: string;
   title: string;
   detail: string;
+}
+
+/** How much of this message the written rules could actually read. */
+export interface Coverage {
+  supported: boolean;
+  /** Name of the dominant writing system, when it isn't Latin. */
+  script: string | null;
+  /** Shown to the customer when coverage is incomplete. */
+  note: string | null;
+}
+
+/** A named scam script the message fits, and what the sender tends to do next. */
+export interface Playbook {
+  id: string;
+  name: string;
+  alsoKnownAs?: string;
+  description: string;
+  nextMoves: string[];
+}
+
+export interface CheckOutcome {
+  id: string;
+  label: string;
+  /** How many individual checks this group contains. */
+  checks: number;
+  /** How many of them fired. */
+  triggered: number;
 }
 
 export interface AnalysisResult {
@@ -63,7 +98,12 @@ export interface AnalysisResult {
   summary: string;
   signals: Signal[];
   links: LinkInsight[];
+  emails: EmailInsight[];
   phoneNumbers: Span[];
+  playbook: Playbook | null;
+  coverage: Coverage;
+  checks: CheckOutcome[];
+  totalChecks: number;
   steps: GuidanceStep[];
   ifAlreadyActed: GuidanceStep[];
   meta: {

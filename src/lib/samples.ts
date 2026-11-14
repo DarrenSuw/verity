@@ -27,6 +27,18 @@ export const samples: SampleMessage[] = [
     text: "Dear customer, your parcel could not be delivered due to an unpaid customs fee of $1.99. Please reschedule delivery today at bit.ly/3xRdlv to avoid it being returned.",
   },
   {
+    id: "qr-parking",
+    label: "QR code notice",
+    channel: "email",
+    text: "PARKING NOTICE: Payment for your vehicle could not be processed. Scan the QR code below to settle the outstanding charge of $4.50 and avoid a $60 penalty. Failure to act within 24 hours may result in legal action and the debt being passed to a collection agency.",
+  },
+  {
+    id: "new-number",
+    label: "“New number” message",
+    channel: "chat",
+    text: "Hi Mum, I dropped my phone and it's completely dead, so this is my new number — save it. I'm locked out of my banking on this phone and a payment is due. Could you send it for me and I'll transfer you back tomorrow? Please don't tell dad, he'll only worry.",
+  },
+  {
     id: "genuine-otp",
     label: "Genuine code",
     channel: "sms",

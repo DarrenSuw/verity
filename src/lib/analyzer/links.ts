@@ -1,6 +1,6 @@
 import { organization } from "@/config/organization";
 import { COMMON_TLDS, HIGH_RISK_TLDS, IMPERSONATED_BRANDS, SHORTENER_DOMAINS } from "./rules";
-import type { LinkInsight, Signal, Span } from "./types";
+import type { EmailInsight, LinkInsight, Signal, Span } from "./types";
 
 const URL_PATTERN = new RegExp(
   String.raw`(?:\bhttps?:\/\/[^\s<>"'()\[\]{}]+|\bwww\.[^\s<>"'()\[\]{}]+|\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:${COMMON_TLDS})\b(?:\/[^\s<>"'()\[\]{}]*)?)`,
@@ -42,6 +42,28 @@ function parseHost(raw: string): { host: string; hasUserInfo: boolean; insecure:
 
 const officialDomains = new Set<string>(organization.officialDomains.map((d) => d.toLowerCase()));
 
+/** Everything we can tell about one web address without opening it. */
+export function inspectUrl(raw: string): { host: string; domain: string; official: boolean; notes: string[] } {
+  const { host, hasUserInfo, insecure } = parseHost(raw);
+  const domain = registrableDomain(host);
+  const official = officialDomains.has(domain);
+  const notes: string[] = [];
+
+  if (!official) {
+    if (impersonatedBrand(host, domain)) notes.push("lookalike");
+    if (SHORTENER_DOMAINS.has(domain)) notes.push("shortener");
+    if (IPV4.test(host)) notes.push("ip");
+    if (host.includes("xn--")) notes.push("punycode");
+    if (hasUserInfo) notes.push("userinfo");
+    const tld = host.split(".").pop() ?? "";
+    if (HIGH_RISK_TLDS.has(tld)) notes.push("risky-tld");
+    if (insecure) notes.push("insecure");
+    if (host.split(".").length > 4) notes.push("deep-subdomain");
+  }
+
+  return { host, domain, official, notes };
+}
+
 export function extractLinks(text: string): LinkInsight[] {
   const links: LinkInsight[] = [];
   for (const match of text.matchAll(URL_PATTERN)) {
@@ -50,24 +72,7 @@ export function extractLinks(text: string): LinkInsight[] {
     // Skip e-mail addresses: "name@example.com" would otherwise match as a domain.
     if (start > 0 && text[start - 1] === "@") continue;
 
-    const { host, hasUserInfo, insecure } = parseHost(raw);
-    const domain = registrableDomain(host);
-    const official = officialDomains.has(domain);
-    const notes: string[] = [];
-
-    if (!official) {
-      if (impersonatedBrand(host, domain)) notes.push("lookalike");
-      if (SHORTENER_DOMAINS.has(domain)) notes.push("shortener");
-      if (IPV4.test(host)) notes.push("ip");
-      if (host.includes("xn--")) notes.push("punycode");
-      if (hasUserInfo) notes.push("userinfo");
-      const tld = host.split(".").pop() ?? "";
-      if (HIGH_RISK_TLDS.has(tld)) notes.push("risky-tld");
-      if (insecure) notes.push("insecure");
-      if (host.split(".").length > 4) notes.push("deep-subdomain");
-    }
-
-    links.push({ url: raw, host, domain, official, notes, span: { start, end: start + raw.length, text: raw } });
+    links.push({ url: raw, ...inspectUrl(raw), span: { start, end: start + raw.length, text: raw } });
   }
   return links;
 }
@@ -82,6 +87,56 @@ export function impersonatedBrand(host: string, domain: string): string | null {
     if (flat.includes(brand) && !domains.includes(domain)) return brand;
   }
   return null;
+}
+
+const EMAIL_PATTERN = /\b[a-z0-9._%+'-]+@([a-z0-9-]+(?:\.[a-z0-9-]+)+)\b/gi;
+/** Contexts in which an address is claiming to be who the message is from. */
+const SENDER_CONTEXT = /\b(?:from|reply[-\s]?to|sender|sent (?:by|from)|contact (?:us )?(?:at|on)|e-?mail (?:us )?(?:at|on)|write to)\b[:\s]+$/i;
+
+export function extractEmails(text: string): EmailInsight[] {
+  const emails: EmailInsight[] = [];
+  for (const match of text.matchAll(EMAIL_PATTERN)) {
+    const address = match[0];
+    const host = match[1].toLowerCase();
+    const domain = registrableDomain(host);
+    const start = match.index ?? 0;
+    emails.push({
+      address,
+      domain,
+      official: officialDomains.has(domain),
+      span: { start, end: start + address.length, text: address },
+    });
+  }
+  return emails;
+}
+
+/**
+ * Flags addresses that imitate a known name, and addresses presented as the
+ * sender while belonging to no official domain. A customer's own address
+ * mentioned in passing is left alone.
+ */
+export function emailSignals(text: string, emails: EmailInsight[]): Signal[] {
+  const impostors = emails.filter((e) => !e.official && impersonatedBrand(e.address.split("@")[1] ?? "", e.domain));
+  const claimed = emails.filter(
+    (e) => !e.official && !impostors.includes(e) && SENDER_CONTEXT.test(text.slice(Math.max(0, e.span.start - 24), e.span.start)),
+  );
+  const spans = [...impostors, ...claimed].map((e) => e.span);
+  if (!spans.length) return [];
+
+  const brandish = impostors.length > 0;
+  return [
+    {
+      id: "sender-domain",
+      category: "impersonation",
+      severity: brandish ? "high" : "medium",
+      critical: brandish,
+      title: brandish ? "Email address imitates a known name" : "Reply address isn’t an official one",
+      explanation: brandish
+        ? `The address borrows a familiar name but the domain behind it (${[...new Set(impostors.map((e) => e.domain))].join(", ")}) belongs to someone else. Display names and addresses are trivial to fake.`
+        : `The address you are asked to use isn’t on ${organization.website}. Replying confirms your address is live and reaches the sender, not us.`,
+      spans,
+    },
+  ];
 }
 
 export function extractPhoneNumbers(text: string, exclude: Span[]): Span[] {

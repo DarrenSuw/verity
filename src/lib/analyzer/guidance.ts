@@ -4,6 +4,8 @@ import type { Channel, GuidanceStep, RiskLevel, Signal } from "./types";
 const has = (signals: Signal[], ...categories: Signal["category"][]) =>
   signals.some((s) => categories.includes(s.category));
 
+const hasId = (signals: Signal[], ...ids: string[]) => signals.some((s) => ids.includes(s.id));
+
 /**
  * Builds the "how to check safely" plan. Ordered by what protects the customer
  * most, tailored to the warning signs found and the channel the message came in.
@@ -31,6 +33,41 @@ export function buildSteps(signals: Signal[], channel: Channel, risk: RiskLevel)
     title: "Check for yourself in the official app or website",
     detail: `Open ${organization.appName} or type ${organization.website} into your browser. If there is a real problem with your account, you will see it there.`,
   });
+
+  if (hasId(signals, "new-number")) {
+    steps.push({
+      id: "known-number",
+      title: "Call the person on the number you already have",
+      detail:
+        "Use the number saved in your phone, not the one that messaged you. If they don’t answer, ask another family member before sending anything.",
+    });
+  }
+
+  if (hasId(signals, "quishing")) {
+    steps.push({
+      id: "no-qr",
+      title: "Don’t scan a code you were sent",
+      detail:
+        "A QR code gives you no way to see where it leads. Reach the same page by typing our address yourself, or use the app.",
+    });
+  }
+
+  if (hasId(signals, "attachment")) {
+    steps.push({
+      id: "no-attachment",
+      title: "Don’t open the attachment",
+      detail:
+        "Unexpected files install software or open a fake login page. Statements and invoices from us are always in your account.",
+    });
+  }
+
+  if (hasId(signals, "sender-domain")) {
+    steps.push({
+      id: "check-address",
+      title: "Read the full address, not the display name",
+      detail: `Anyone can put “${organization.name}” as a sender name. Only the part after the @ matters, and ours ends in ${organization.website}.`,
+    });
+  }
 
   if (has(signals, "credentials")) {
     steps.push({

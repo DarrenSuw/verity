@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { organization } from "@/config/organization";
-import type { AnalysisResult, Channel, LinkInsight, RiskLevel } from "@/lib/analyzer/types";
-import type { AiState } from "./checker";
+import type { AnalysisResult, Channel, CheckOutcome, EmailInsight, LinkInsight, Playbook, RiskLevel } from "@/lib/analyzer/types";
+import { buildReportText, buildSpokenText } from "@/lib/report";
+import { ResultActions } from "./actions";
+import type { AiState } from "./message-checker";
 import { HighlightedMessage } from "./highlighted-message";
-import { RISK_LABEL, RiskMeter, SectionLabel, SeverityTag } from "./ui";
+import { AlertIcon, LINK_NOTE, OfficialContacts, RISK_LABEL, RiskMeter, SectionLabel, SeverityTag } from "./ui";
 
 const CHANNEL_LABEL: Record<Channel, string> = {
   sms: "Text message",
@@ -16,22 +18,12 @@ const CHANNEL_LABEL: Record<Channel, string> = {
 
 const RISK_TEXT: Record<RiskLevel, string> = { high: "text-high", medium: "text-medium", low: "text-low" };
 
-const LINK_NOTE: Record<string, string> = {
-  lookalike: "Imitates a known name",
-  shortener: "Hides real destination",
-  ip: "Raw number address",
-  punycode: "Hidden look-alike letters",
-  userinfo: "Misleading “@” trick",
-  "risky-tld": "Unusual ending",
-  insecure: "Not encrypted",
-  "deep-subdomain": "Buried in sub-addresses",
-};
-
 export function Results({
   result,
   text,
   ai,
   aiEnabled,
+  redacted,
   onReset,
   onEdit,
 }: {
@@ -39,6 +31,7 @@ export function Results({
   text: string;
   ai: AiState;
   aiEnabled: boolean;
+  redacted: number;
   onReset: () => void;
   onEdit: () => void;
 }) {
@@ -48,6 +41,8 @@ export function Results({
     medium: result.signals.filter((s) => s.severity === "medium").length,
     low: result.signals.filter((s) => s.severity === "low").length,
   };
+  const reportText = useMemo(() => buildReportText(result, text), [result, text]);
+  const spokenText = useMemo(() => buildSpokenText(result), [result]);
 
   return (
     <div className="rise grid gap-8 lg:grid-cols-12 lg:gap-12">
@@ -59,7 +54,7 @@ export function Results({
               <SectionLabel>Your message</SectionLabel>
               <span className="text-[12px] text-ink-3">{CHANNEL_LABEL[result.meta.channel]}</span>
             </div>
-            <div className="max-h-[52vh] overflow-y-auto px-5 py-5">
+            <div className="max-h-[52vh] overflow-y-auto px-5 py-5 print:max-h-none print:overflow-visible">
               <HighlightedMessage text={text} signals={result.signals} activeId={activeId} onActivate={setActiveId} />
             </div>
             {result.signals.length > 0 && (
@@ -67,11 +62,22 @@ export function Results({
                 <Legend tone="bg-high" label="Serious" />
                 <Legend tone="bg-medium" label="Caution" />
                 <Legend tone="bg-line-strong" label="Minor" />
-                <span className="ml-auto hidden sm:inline">Hover a highlight to see why</span>
+                <span className="ml-auto hidden sm:inline print:hidden">Hover a highlight to see why</span>
               </div>
             )}
           </div>
-          <div className="mt-4 flex gap-2">
+
+          {redacted > 0 && (
+            <p className="mt-3 flex items-start gap-2 text-[12px] leading-relaxed text-ink-3">
+              <AlertIcon className="mt-[0.15em] size-3.5 text-accent" />
+              <span>
+                We removed {redacted} card number{redacted === 1 ? "" : "s"} in your browser before checking. It was never sent
+                to us.
+              </span>
+            </p>
+          )}
+
+          <div className="mt-4 flex gap-2 print:hidden">
             <button
               type="button"
               onClick={onReset}
@@ -87,11 +93,25 @@ export function Results({
               Edit
             </button>
           </div>
+
+          <div className="mt-3">
+            <ResultActions reportText={reportText} spokenText={spokenText} />
+          </div>
         </div>
       </aside>
 
       {/* Findings column */}
       <div className="min-w-0 space-y-12 lg:col-span-7">
+        {!result.coverage.supported && (
+          <div className="flex gap-3 rounded-2xl border border-medium-line bg-medium-bg px-5 py-4">
+            <AlertIcon className="mt-0.5 text-medium" />
+            <div>
+              <p className="text-[14px] font-medium text-medium">Limited check</p>
+              <p className="mt-1 max-w-[58ch] text-[13.5px] leading-relaxed text-ink-2">{result.coverage.note}</p>
+            </div>
+          </div>
+        )}
+
         <section aria-live="polite">
           <div className="flex items-center gap-3">
             <RiskMeter risk={result.risk} />
@@ -99,9 +119,7 @@ export function Results({
               {RISK_LABEL[result.risk]}
             </span>
           </div>
-          <h2 className="mt-4 font-display text-[28px] leading-[1.15] text-ink sm:text-[34px]">
-            {result.headline}
-          </h2>
+          <h2 className="mt-4 font-display text-[28px] leading-[1.15] text-ink sm:text-[34px]">{result.headline}</h2>
           <p className="mt-4 max-w-[60ch] text-[15.5px] leading-relaxed text-ink-2">{result.summary}</p>
           {result.signals.length > 0 && (
             <dl className="mt-6 flex divide-x divide-line rounded-xl border border-line">
@@ -111,6 +129,8 @@ export function Results({
             </dl>
           )}
         </section>
+
+        {result.playbook && <PlaybookCard playbook={result.playbook} />}
 
         {result.signals.length > 0 && (
           <section>
@@ -149,6 +169,7 @@ export function Results({
         )}
 
         {result.links.length > 0 && <LinkInspector links={result.links} />}
+        {result.emails.length > 0 && <EmailInspector emails={result.emails} />}
 
         <section>
           <SectionLabel>How to check safely</SectionLabel>
@@ -167,6 +188,8 @@ export function Results({
         </section>
 
         {aiEnabled && <AiReviewCard ai={ai} />}
+
+        <ChecksPanel checks={result.checks} total={result.totalChecks} found={result.signals.length} />
 
         <details className="group rounded-2xl border border-line">
           <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-4 text-[14.5px] font-medium text-ink">
@@ -207,6 +230,31 @@ function Stat({ label, value, tone }: { label: string; value: number; tone: stri
   );
 }
 
+function PlaybookCard({ playbook }: { playbook: Playbook }) {
+  return (
+    <section className="overflow-hidden rounded-2xl border border-line">
+      <div className="border-b border-line bg-surface px-5 py-3.5">
+        <SectionLabel>Known scam pattern</SectionLabel>
+      </div>
+      <div className="px-5 py-5">
+        <h3 className="font-display text-[21px] leading-tight text-ink">{playbook.name}</h3>
+        {playbook.alsoKnownAs && <p className="mt-1 text-[12.5px] text-ink-3">Also called {playbook.alsoKnownAs}</p>}
+        <p className="mt-3 max-w-[62ch] text-[14.5px] leading-relaxed text-ink-2">{playbook.description}</p>
+
+        <p className="mt-6 text-[12px] font-medium tracking-[0.14em] text-ink-3 uppercase">What usually happens next</p>
+        <ol className="mt-3 space-y-3">
+          {playbook.nextMoves.map((move, i) => (
+            <li key={move} className="grid grid-cols-[1.25rem_1fr] gap-x-2.5 text-[14px] leading-relaxed text-ink-2">
+              <span className="font-mono text-[11.5px] leading-6 text-accent">{String(i + 1).padStart(2, "0")}</span>
+              {move}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
 function LinkInspector({ links }: { links: LinkInsight[] }) {
   return (
     <section>
@@ -236,30 +284,68 @@ function LinkInspector({ links }: { links: LinkInsight[] }) {
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-[12.5px] text-ink-3">Don’t open these to check them. Even an official-looking link is safer reached through the app.</p>
+      <p className="mt-3 text-[12.5px] text-ink-3">
+        Don’t open these to check them. Even an official-looking link is safer reached through the app.
+      </p>
     </section>
   );
 }
 
-function OfficialContacts() {
-  const rows = [
-    { label: "Website", value: organization.website, hint: "Type it in yourself" },
-    { label: "Phone", value: organization.supportPhone, hint: "Also on the back of your card" },
-    { label: "Report a scam", value: organization.reportEmail, hint: "Forward the message here" },
-  ];
+function EmailInspector({ emails }: { emails: EmailInsight[] }) {
   return (
-    <div className="mt-8 rounded-2xl bg-surface px-5 py-5">
-      <p className="text-[13px] font-medium text-ink">Our official contacts</p>
-      <dl className="mt-3 grid gap-4 sm:grid-cols-3">
-        {rows.map((r) => (
-          <div key={r.label}>
-            <dt className="text-[11.5px] text-ink-3">{r.label}</dt>
-            <dd className="mt-0.5 font-mono text-[13px] break-all text-ink">{r.value}</dd>
-            <dd className="mt-0.5 text-[11.5px] text-ink-3">{r.hint}</dd>
-          </div>
+    <section>
+      <SectionLabel count={emails.length}>Email addresses in this message</SectionLabel>
+      <ul className="mt-4 space-y-2">
+        {emails.map((e) => (
+          <li key={e.span.start} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-line px-4 py-3">
+            <p className="font-mono text-[12.5px] break-all text-ink">{e.address}</p>
+            {e.official ? (
+              <span className="rounded-full border border-low-line bg-low-bg px-2 py-0.5 text-[11px] font-medium text-low">
+                Official {organization.name} domain
+              </span>
+            ) : (
+              <span className="rounded-full border border-line bg-surface px-2 py-0.5 text-[11px] text-ink-2">
+                Not ours — {e.domain}
+              </span>
+            )}
+          </li>
         ))}
-      </dl>
-    </div>
+      </ul>
+    </section>
+  );
+}
+
+function ChecksPanel({ checks, total, found }: { checks: CheckOutcome[]; total: number; found: number }) {
+  return (
+    <details className="group rounded-2xl border border-line">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
+        <span className="text-[14.5px] font-medium text-ink">
+          What we checked
+          <span className="ml-2 font-mono text-[12px] font-normal text-ink-3">
+            {found} of {total} checks matched
+          </span>
+        </span>
+        <span className="text-ink-3 transition-transform group-open:rotate-45" aria-hidden>
+          +
+        </span>
+      </summary>
+      <div className="border-t border-line px-5 py-5">
+        <ul className="grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+          {checks.map((c) => (
+            <li key={c.id} className="flex items-baseline justify-between gap-3 text-[13.5px]">
+              <span className={c.triggered ? "font-medium text-ink" : "text-ink-2"}>{c.label}</span>
+              <span className={`shrink-0 font-mono text-[11.5px] ${c.triggered ? "text-high" : "text-ink-3"}`}>
+                {c.triggered ? `${c.triggered} found` : "clear"}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-5 text-[12.5px] leading-relaxed text-ink-3">
+          Every check is a fixed rule, run on your message in this order, with no scoring by an outside service. “Clear” means
+          that rule didn’t match — not that the message is safe.
+        </p>
+      </div>
+    </details>
   );
 }
 

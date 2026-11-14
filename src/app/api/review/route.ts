@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { aiEnabled, reviewWithAI } from "@/lib/ai/review";
+import { clientKey, rateLimit } from "@/lib/rate-limit";
 import { parseBody } from "@/lib/validation";
 
 export const runtime = "nodejs";
@@ -10,6 +11,14 @@ export const maxDuration = 60;
 /** Optional AI second opinion. Returns 404 when AI is not configured. */
 export async function POST(request: Request) {
   if (!aiEnabled()) return NextResponse.json({ error: "AI review is not enabled." }, { status: 404 });
+
+  // Tighter than the rule engine: this one costs money per call.
+  const limit = rateLimit(`review:${clientKey(request)}`, 10, 60_000);
+  if (!limit.ok)
+    return NextResponse.json(
+      { error: "AI review is rate limited. Wait a moment and try again." },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
 
   const body = await parseBody(request);
   if (!body.ok) return NextResponse.json({ error: body.error }, { status: 400 });

@@ -115,3 +115,26 @@ mark.sig[data-active="true"].sig-low { background: var(--surface-2); text-decora
 @media (prefers-reduced-motion: reduce) {
   .rise, .skeleton { animation: none; }
 }
+
+/* A printed copy is the record a customer takes to the bank or the police. */
+@media print {
+  @page { margin: 16mm; }
+
+  header, footer, nav { display: none !important; }
+
+  .rise { animation: none; }
+
+  /* One column, nothing pinned, nothing clipped. */
+  [class*="lg:grid-cols-12"] { display: block !important; }
+  [class*="lg:sticky"] { position: static !important; }
+  [class*="max-h-["] { max-height: none !important; overflow: visible !important; }
+
+  /* Collapsed sections still belong in the record. */
+  details > *:not(summary) { display: block !important; }
+  details { break-inside: avoid; border: 0 !important; padding: 0 !important; }
+  details summary { list-style: none; font-weight: 600; }
+
+  section { break-inside: avoid; }
+
+  mark.sig { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

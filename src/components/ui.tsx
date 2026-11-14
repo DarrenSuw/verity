@@ -1,4 +1,39 @@
+import { organization } from "@/config/organization";
 import type { RiskLevel, Severity } from "@/lib/analyzer/types";
+
+/** Plain-language names for the findings a link inspection can produce. */
+export const LINK_NOTE: Record<string, string> = {
+  lookalike: "Imitates a known name",
+  shortener: "Hides real destination",
+  ip: "Raw number address",
+  punycode: "Hidden look-alike letters",
+  userinfo: "Misleading “@” trick",
+  "risky-tld": "Unusual ending",
+  insecure: "Not encrypted",
+  "deep-subdomain": "Buried in sub-addresses",
+};
+
+export function OfficialContacts() {
+  const rows = [
+    { label: "Website", value: organization.website, hint: "Type it in yourself" },
+    { label: "Phone", value: organization.supportPhone, hint: "Also on the back of your card" },
+    { label: "Report a scam", value: organization.reportEmail, hint: "Forward the message here" },
+  ];
+  return (
+    <div className="mt-8 rounded-2xl bg-surface px-5 py-5">
+      <p className="text-[13px] font-medium text-ink">Our official contacts</p>
+      <dl className="mt-3 grid gap-4 sm:grid-cols-3">
+        {rows.map((r) => (
+          <div key={r.label}>
+            <dt className="text-[11.5px] text-ink-3">{r.label}</dt>
+            <dd className="mt-0.5 font-mono text-[13px] break-all text-ink">{r.value}</dd>
+            <dd className="mt-0.5 text-[11.5px] text-ink-3">{r.hint}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
 
 export const SEVERITY_LABEL: Record<Severity, string> = {
   high: "Serious",
@@ -56,6 +91,76 @@ export function ArrowIcon({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+
+function Icon({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`size-4 shrink-0 ${className}`}
+      aria-hidden
+    >
+      {children}
+    </svg>
+  );
+}
+
+export const SoundIcon = () => (
+  <Icon>
+    <path d="M8.5 2.5 5 5.5H2.5v5H5l3.5 3V2.5Z" />
+    <path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.9 3.3a6.5 6.5 0 0 1 0 9.4" />
+  </Icon>
+);
+
+export const StopIcon = () => (
+  <Icon>
+    <rect x="3.5" y="3.5" width="9" height="9" rx="1.5" />
+  </Icon>
+);
+
+export const CopyIcon = () => (
+  <Icon>
+    <rect x="5.5" y="5.5" width="8" height="8" rx="1.5" />
+    <path d="M10.5 3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1" />
+  </Icon>
+);
+
+export const CheckIcon = () => (
+  <Icon>
+    <path d="m3 8.5 3.2 3.2L13 4.8" />
+  </Icon>
+);
+
+export const PrintIcon = () => (
+  <Icon>
+    <path d="M4.5 6V2.5h7V6M4.5 12H3a.5.5 0 0 1-.5-.5v-4A1.5 1.5 0 0 1 4 6h8a1.5 1.5 0 0 1 1.5 1.5v4a.5.5 0 0 1-.5.5h-1.5" />
+    <rect x="4.5" y="9.5" width="7" height="4" rx=".5" />
+  </Icon>
+);
+
+export const AlertIcon = ({ className = "" }: { className?: string }) => (
+  <Icon className={className}>
+    <path d="M8 2.8 1.9 13.2h12.2L8 2.8Z" />
+    <path d="M8 6.6v3M8 11.4h.01" />
+  </Icon>
+);
+
+export const SearchIcon = () => (
+  <Icon>
+    <circle cx="7" cy="7" r="4.2" />
+    <path d="m10.2 10.2 3.3 3.3" />
+  </Icon>
+);
+
+export const ChatIcon = () => (
+  <Icon>
+    <path d="M13.5 8.8c0 2.4-2.5 4.3-5.5 4.3-.7 0-1.3-.1-1.9-.3l-3.6 1 1-2.6c-.6-.7-1-1.5-1-2.4 0-2.4 2.5-4.3 5.5-4.3s5.5 1.9 5.5 4.3Z" />
+  </Icon>
+);
 
 export function ShieldIcon({ className = "" }: { className?: string }) {
   return (

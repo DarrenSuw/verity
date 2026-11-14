@@ -98,6 +98,42 @@ export const patternRules: PatternRule[] = [
     exclude: /\b(?:app store|play store|google play)\b/i,
   },
   {
+    id: "quishing",
+    category: "link",
+    severity: "high",
+    title: "Asks you to scan a QR code",
+    explanation:
+      "A QR code hides its destination completely — you cannot read where it goes before you scan it. Never scan a code sent to you to log in or pay.",
+    patterns: [
+      /\b(?:scan (?:the |this |below |attached |following )?(?:qr|bar) ?code|qr ?code (?:below|attached|above)|scan (?:the )?code (?:below|to (?:pay|verify|log ?in|confirm|continue)))\b/gi,
+    ],
+    exclude: /\bin (?:the |our |your )?[a-z]{0,12} ?app\b/i,
+  },
+  {
+    id: "attachment",
+    category: "remote-access",
+    severity: "medium",
+    title: "Asks you to open an attachment",
+    explanation:
+      "Attachments in unexpected messages carry malware or lead to a fake login page. Open documents only when you were already expecting them.",
+    patterns: [
+      /\b(?:open|view|review|check|see|download|print) (?:the |your |this |attached )?(?:attach(?:ed|ment)|enclosed (?:file|document|invoice)|attached (?:file|document|invoice|statement|receipt|form))\b/gi,
+      /\b(?:invoice|statement|receipt|document|voicemail|fax) (?:is )?attached\b/gi,
+    ],
+  },
+  {
+    id: "new-number",
+    category: "impersonation",
+    severity: "medium",
+    title: "Claims to be someone you know on a new number",
+    explanation:
+      "Impostors replace a number you trust with one they control, then ask for money or codes. Call the person on the number you already have before replying.",
+    patterns: [
+      /\b(?:my new (?:number|phone)|i(?:['’]ve| have) (?:got )?(?:a )?new (?:number|phone)|lost my phone|broke my phone|my phone (?:is |got |was )?(?:broken|damaged|smashed|stolen)|(?:texting|messaging|writing) (?:you )?from (?:a |my )?(?:new|borrowed|friend['’]?s) phone|save my new number)\b/gi,
+      /\b(?:hi|hello|hey) (?:mum|mom|mummy|mommy|dad|daddy|son|daughter)\b[,\s]/gi,
+    ],
+  },
+  {
     id: "secrecy",
     category: "secrecy",
     severity: "high",
@@ -106,7 +142,7 @@ export const patternRules: PatternRule[] = [
     explanation:
       "Scammers isolate you so no one can warn you. A genuine provider will never tell you to hide a conversation from family or branch staff.",
     patterns: [
-      /\b(?:do(?:n['’]?t| not)|never|not to) (?:tell|inform|share this with|discuss (?:this|it) with|mention (?:this|it) to|contact|call|speak to|talk to) (?:anyone|anybody|your (?:bank|family|branch|friends?|partner)|the bank|bank staff|branch staff|staff|the branch)\b/gi,
+      /\b(?:do(?:n['’]?t| not)|never|not to) (?:tell|inform|share this with|discuss (?:this|it) with|mention (?:this|it) to|contact|call|speak to|talk to) (?:anyone|anybody|anyone else|your (?:bank|family|branch|friends?|partner|mum|mom|dad|parents|husband|wife)|the bank|bank staff|branch staff|staff|the branch|mum|mom|dad|grandma|grandad)\b/gi,
       /\bkeep (?:this|it|our conversation) (?:confidential|secret|between us|private|to yourself)\b/gi,
     ],
   },
