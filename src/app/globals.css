@@ -1,26 +1,117 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --surface: #fafaf8;
+  --surface-2: #f4f3ef;
+  --ink: #0e0e10;
+  --ink-2: #3f4046;
+  --ink-3: #74757c;
+  --line: #ebe9e4;
+  --line-strong: #d8d5cd;
+  --accent: #8a6d3b;
+
+  --high: #8e1b1b;
+  --high-bg: #fbf1f0;
+  --high-line: #efd3d0;
+  --medium: #84570a;
+  --medium-bg: #fcf6e9;
+  --medium-line: #f0e1bd;
+  --low: #1d5b41;
+  --low-bg: #eff6f2;
+  --low-line: #cfe3d8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-high: var(--high);
+  --color-high-bg: var(--high-bg);
+  --color-high-line: var(--high-line);
+  --color-medium: var(--medium);
+  --color-medium-bg: var(--medium-bg);
+  --color-medium-line: var(--medium-line);
+  --color-low: var(--low);
+  --color-low-bg: var(--low-bg);
+  --color-low-line: var(--low-line);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--bg);
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #ece6da;
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Headings: one family, set tight and confident */
+.font-display {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  font-feature-settings: "cv11", "ss01", "ss03", "tnum";
+}
+
+/* Highlights inside the pasted message */
+mark.sig {
+  background: transparent;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+  transition: background-color 160ms ease;
+  cursor: help;
+}
+mark.sig-high { background: var(--high-bg); text-decoration-color: var(--high); }
+mark.sig-medium { background: var(--medium-bg); text-decoration-color: var(--medium); }
+mark.sig-low { background: transparent; text-decoration-color: var(--line-strong); text-decoration-style: dashed; }
+mark.sig[data-active="true"].sig-high { background: #f5dcd9; }
+mark.sig[data-active="true"].sig-medium { background: #f6e8c6; }
+mark.sig[data-active="true"].sig-low { background: var(--surface-2); text-decoration-color: var(--ink-3); }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 0, #ecebe6 50%, var(--surface-2) 100%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .skeleton { animation: none; }
 }
